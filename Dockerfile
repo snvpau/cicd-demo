@@ -1,7 +1,6 @@
-FROM python:3.8
+FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY . /app
-RUN pip install flask
+COPY target/java-pipeline-1.0-SNAPSHOT.jar /app/app.jar
 EXPOSE 8080
-ENTRYPOINT ["python"]
-CMD ["app.py"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
