@@ -11,8 +11,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.2</version>  <!-- Última versión de Spring Boot -->
-        <relativePath/> <!-- Look up the parent from Maven Central -->
+        <version>3.2.2</version>  
+        <relativePath/>
     </parent>
 
     <dependencies>
@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.2.2</version>  <!-- Especifica la versión -->
+                <version>3.2.2</version> 
             </plugin>
         </plugins>
     </build>
