@@ -18,14 +18,13 @@ class SpringBootAppApplicationTests {
 
     @Test
     void contextLoads() {
-        // Verifica que el contexto de la aplicación se carga correctamente
     }
 
     @Test
     void testHelloEndpoint() throws Exception {
         // Realiza una solicitud GET a la ruta "/"
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk()) // Verifica que la respuesta sea 200 OK
-                .andExpect(content().string("Hello, World!")); // Verifica que el contenido sea "Hello, World!"
+        mockMvc.perform(get("/hello"))
+                .andExpect(status().isOk()) 
+                .andExpect(content().string("Hello World!")); 
     }
 }
