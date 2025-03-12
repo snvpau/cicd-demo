@@ -22,7 +22,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-image .
+          docker build -t my-java-image .
           docker tag my-image:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest
 
       - name: Log in to DockerHub
