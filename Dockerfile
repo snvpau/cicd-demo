@@ -1,50 +1,19 @@
-name: CI/CD Pipeline
 
-on:
-  push:
-    branches: [main]
+FROM maven:3.8.4-openjdk-17 AS builder
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+WORKDIR /app
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin'  
-          java-version: '17'
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-      - name: Build with Maven
-        run: mvn clean install
+COPY src /app/src
 
-      - name: Build Docker image
-        run: |
-          docker build -t my-image .
-          docker tag my-image:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest
+RUN mvn clean package -DskipTests
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+FROM openjdk:17-jdk-slim
 
-      - name: Push Docker image to DockerHub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest
+COPY --from=builder /app/target/spring-boot-app-0.0.1-SNAPSHOT.jar /app/spring-boot-app.jar
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+EXPOSE 8080
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin'  
-          java-version: '17'
-
-      - name: Run tests with Maven
-        run: mvn test
+ENTRYPOINT ["java", "-jar", "/app/spring-boot-app.jar"]
