@@ -1,33 +1,50 @@
-<<<<<<< HEAD
-FROM maven:3.8.6-eclipse-temurin-17 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
-FROM eclipse-temurin:17-jdk
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
-=======
+name: CI/CD Pipeline
 
-FROM maven:3.8.4-openjdk-17 AS builder
+on:
+  push:
+    branches: [main]
 
-WORKDIR /app
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-COPY pom.xml .
-RUN mvn dependency:go-offline
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'  
+          java-version: '17'
 
-COPY src /app/src
+      - name: Build with Maven
+        run: mvn clean install
 
-RUN mvn clean package -DskipTests
+      - name: Build Docker image
+        run: |
+          docker build -t my-image .
+          docker tag my-image:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest
 
-FROM openjdk:17-jdk-slim
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-COPY --from=builder /app/target/spring-boot-app-0.0.1-SNAPSHOT.jar /app/spring-boot-app.jar
+      - name: Push Docker image to DockerHub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest
 
-EXPOSE 8080
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-ENTRYPOINT ["java", "-jar", "/app/spring-boot-app.jar"]
->>>>>>> 77ec56d (Inicializando repositorio con el proyecto)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'  
+          java-version: '17'
+
+      - name: Run tests with Maven
+        run: mvn test
